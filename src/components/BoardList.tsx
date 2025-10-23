@@ -15,6 +15,8 @@ interface BoardListProps {
   onAddCard: (listId: string, title: string, description?: string) => void;
   onDeleteCard: (cardId: string) => void;
   onDeleteList: (listId: string) => void;
+  onCompleteCard?: (cardId: string) => void;
+  isDoneList?: boolean;
 }
 
 export function BoardList({
@@ -24,6 +26,8 @@ export function BoardList({
   onAddCard,
   onDeleteCard,
   onDeleteList,
+  onCompleteCard,
+  isDoneList = false,
 }: BoardListProps) {
   const { setNodeRef } = useDroppable({ id });
 
@@ -50,7 +54,13 @@ export function BoardList({
           strategy={verticalListSortingStrategy}
         >
           {cards.map((card) => (
-            <Card key={card.id} card={card} onDelete={onDeleteCard} />
+            <Card 
+              key={card.id} 
+              card={card} 
+              onDelete={onDeleteCard}
+              onComplete={onCompleteCard}
+              showCompleteButton={!isDoneList}
+            />
           ))}
         </SortableContext>
       </div>

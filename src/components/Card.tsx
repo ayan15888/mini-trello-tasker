@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2 } from 'lucide-react';
+import { GripVertical, Trash2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export interface CardData {
@@ -12,9 +12,11 @@ export interface CardData {
 interface CardProps {
   card: CardData;
   onDelete: (id: string) => void;
+  onComplete?: (id: string) => void;
+  showCompleteButton?: boolean;
 }
 
-export function Card({ card, onDelete }: CardProps) {
+export function Card({ card, onDelete, onComplete, showCompleteButton = false }: CardProps) {
   const {
     attributes,
     listeners,
@@ -54,14 +56,27 @@ export function Card({ card, onDelete }: CardProps) {
             </p>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-          onClick={() => onDelete(card.id)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex gap-1">
+          {showCompleteButton && onComplete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-accent"
+              onClick={() => onComplete(card.id)}
+              title="Mark as complete"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+            onClick={() => onDelete(card.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

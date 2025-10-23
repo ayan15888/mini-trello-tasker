@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
   DragOverlay,
@@ -14,7 +15,11 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { BoardList } from '@/components/BoardList';
 import { AddListForm } from '@/components/AddListForm';
 import { Card, CardData } from '@/components/Card';
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid, LogOut, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface List {
   id: string;
@@ -25,6 +30,8 @@ interface List {
 const STORAGE_KEY = 'taskflow-board-data';
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [lists, setLists] = useState<List[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -59,8 +66,16 @@ const Index = () => {
   const [activeCard, setActiveCard] = useState<CardData | null>(null);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lists));
-  }, [lists]);
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(lists));
+    }
+  }, [lists, user]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -198,16 +213,86 @@ const Index = () => {
     setLists((lists) => lists.filter((list) => list.id !== listId));
   };
 
+  const handleCompleteCard = (cardId: string) => {
+    const doneList = lists.find((list) => list.title.toLowerCase() === 'done');
+    
+    if (!doneList) {
+      toast.error('Please create a "Done" list first');
+      return;
+    }
+
+    setLists((lists) => {
+      const sourceList = lists.find((list) =>
+        list.cards.some((card) => card.id === cardId)
+      );
+
+      if (!sourceList || sourceList.id === doneList.id) {
+        return lists;
+      }
+
+      const cardToMove = sourceList.cards.find((card) => card.id === cardId);
+      if (!cardToMove) return lists;
+
+      return lists.map((list) => {
+        if (list.id === sourceList.id) {
+          return {
+            ...list,
+            cards: list.cards.filter((card) => card.id !== cardId),
+          };
+        }
+        if (list.id === doneList.id) {
+          return {
+            ...list,
+            cards: [...list.cards, cardToMove],
+          };
+        }
+        return list;
+      });
+    });
+
+    toast.success('Card marked as complete!');
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success('Signed out successfully');
+    navigate('/auth');
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[image:var(--gradient-primary)] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-white" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-[image:var(--gradient-primary)] p-6">
       <header className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-background/20 backdrop-blur-sm rounded-lg">
-            <LayoutGrid className="h-6 w-6 text-white" />
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-background/20 backdrop-blur-sm rounded-lg">
+                <LayoutGrid className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-4xl font-bold text-white">TaskFlow</h1>
+            </div>
+            <p className="text-white/80 text-lg">Organize your work with ease</p>
           </div>
-          <h1 className="text-4xl font-bold text-white">TaskFlow</h1>
+          <Button
+            variant="secondary"
+            onClick={handleSignOut}
+            className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
         </div>
-        <p className="text-white/80 text-lg">Organize your work with ease</p>
       </header>
 
       <DndContext
@@ -227,6 +312,8 @@ const Index = () => {
               onAddCard={handleAddCard}
               onDeleteCard={handleDeleteCard}
               onDeleteList={handleDeleteList}
+              onCompleteCard={handleCompleteCard}
+              isDoneList={list.title.toLowerCase() === 'done'}
             />
           ))}
           <AddListForm onAdd={handleAddList} />
