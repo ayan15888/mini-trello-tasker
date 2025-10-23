@@ -116,23 +116,23 @@ export default function Auth() {
     <div className="min-h-screen bg-[image:var(--gradient-primary)] flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6 animate-fade-in">
         <div className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg">
               <LayoutGrid className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-white">TaskFlow</h1>
+            <h1 className="text-4xl font-bold text-white drop-shadow-lg">TaskFlow</h1>
           </div>
-          <p className="text-white/80">Sign in to manage your tasks</p>
+          <p className="text-white/90 text-lg">Organize your work with ease</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome</CardTitle>
-            <CardDescription>Sign in to your account or create a new one</CardDescription>
+        <Card className="shadow-[var(--shadow-elegant)] border-2">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-2xl">Welcome</CardTitle>
+            <CardDescription className="text-base">Sign in to your account or create a new one</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>

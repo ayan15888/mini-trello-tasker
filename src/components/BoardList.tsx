@@ -32,13 +32,13 @@ export function BoardList({
   const { setNodeRef } = useDroppable({ id });
 
   return (
-    <div className="bg-secondary/30 backdrop-blur-sm rounded-xl p-4 min-w-[320px] max-w-[320px] flex flex-col shadow-[var(--shadow-list)] animate-slide-in">
-      <div className="flex items-center justify-between mb-4 group">
-        <h2 className="font-bold text-lg text-foreground">{title}</h2>
+    <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-4 min-w-[320px] max-w-[320px] flex flex-col shadow-[var(--shadow-list)] animate-slide-in">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/50 group">
+        <h2 className="font-bold text-lg text-foreground tracking-tight">{title}</h2>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:text-destructive hover:bg-destructive/10"
           onClick={() => onDeleteList(id)}
         >
           <Trash2 className="h-4 w-4" />
